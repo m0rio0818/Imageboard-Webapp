@@ -9,165 +9,124 @@ use Models\DataTimeStamp;
 
 class PostDAOImpl implements PostDAO
 {
-    public function create(Post $partData): bool
+    public function create(Post $postData): bool
     {
-        if ($partData->getId() !== null) throw new \Exception('Cannot create a computer part with an existing ID. id: ' . $partData->getId());
-        return $this->createOrUpdate($partData);
+        if ($postData->getId() !== null) throw new \Exception('Cannot create a post with an existing ID. id: ' . $postData->getId());
+        return $this->createOrUpdate($postData);
     }
 
     public function getById(int $id): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM computer_parts WHERE id = ?", 'i', [$id])[0] ?? null;
+        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Imageboard WHERE id = ?", 'i', [$id])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultToComputerPart($computerPart);
+        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
     }
 
-    public function update(Post $partData): bool
+    public function update(Post $postData): bool
     {
-        if ($partData->getId() === null) throw new \Exception('Computer part specified has no ID.');
+        if ($postData->getId() === null) throw new \Exception('Post has no ID.');
 
-        $current = $this->getById($partData->getId());
-        if ($current === null) throw new \Exception(sprintf("Computer part %s does not exist.", $partData->getId()));
+        $current = $this->getById($postData->getId());
+        if ($current === null) throw new \Exception(sprintf("Post %s does not exist.", $postData->getId()));
 
-        return $this->createOrUpdate($partData);
+        return $this->createOrUpdate($postData);
     }
 
     public function delete(int $id): bool
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        return $mysqli->prepareAndExecute("DELETE FROM computer_parts WHERE id = ?", 'i', [$id]);
+        return $mysqli->prepareAndExecute("DELETE FROM Imageboard WHERE id = ?", 'i', [$id]);
     }
 
     public function getRandom(): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM computer_parts ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
+        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Imageboard ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultToComputerPart($computerPart);
+        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
     }
 
-    public function getAll(int $offset, int $limit): array
+    public function getAllThreads(int $offset, int $limit): array
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM computer_parts LIMIT ?, ?";
+        $query = "SELECT * FROM Imageboard WHERE reply_to_id IS NULL LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
 
-        return $results === null ? [] : $this->resultsToComputerParts($results);
+        return $results === null ? [] : $this->resultsToPosts($results);
     }
 
-    public function getCountByType(string $type): int
+    public function getReplies(Post $postData, int $offset, int $limit): array
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT COUNT(*) FROM computer_parts WHERE type = ?";
+        $query = "SELECT * FROM Imageboard WHERE reply_to_id = ? LIMIT ?, ?";
 
-        $result = $mysqli->prepareAndFetchAll($query, 's', [$type]);
-        return $result[0]['COUNT(*)'];
+        $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
+
+        return $results === null ? [] : $this->resultsToPosts($results);
     }
 
-    public function getAllByType(string $type, int $offset, int $limit): array
-    {
-        $mysqli = DatabaseManager::getMysqliConnection();
-
-        $query = "SELECT * FROM computer_parts WHERE type = ? LIMIT ?, ?";
-
-        $results = $mysqli->prepareAndFetchAll($query, 'sii', [$type, $offset, $limit]);
-        return $results === null ? [] : $this->resultsToComputerParts($results);
-    }
-
-    public function createOrUpdate(Post $partData): bool
+    public function createOrUpdate(Post $postData): bool
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
         $query =
             <<<SQL
-            INSERT INTO computer_parts (id, name, type, brand, model_number, release_date, description, performance_score, market_price, rsm, power_consumptionw, lengthm, widthm, heightm, lifespan)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Imageboard (id, reply_to_id, subject, content, ImagePath,)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE id = ?,
-            name = VALUES(name),
-            type = VALUES(type),
-            brand = VALUES(brand),
-            model_number = VALUES(model_number),
-            release_date = VALUES(release_date),
-            description = VALUES(description),
-            performance_score = VALUES(performance_score),
-            market_price = VALUES(market_price),
-            rsm = VALUES(rsm),
-            power_consumptionw = VALUES(power_consumptionw),
-            lengthm = VALUES(lengthm),
-            widthm = VALUES(widthm),
-            heightm = VALUES(heightm),
-            lifespan = VALUES(lifespan);
+            reply_to_id = VALUES(reply_to_id),
+            subject = VALUES(subject),
+            content = VALUES(content),
+            ImagePath = VALUES(ImagePath),
         SQL;
 
         $result = $mysqli->prepareAndExecute(
             $query,
-            'issssssidddddddi',
+            'iissss',
             [
-                $partData->getId(), // on null ID, mysql will use auto-increment.
-                $partData->getName(),
-                $partData->getType(),
-                $partData->getBrand(),
-                $partData->getModelNumber(),
-                $partData->getReleaseDate(),
-                $partData->getDescription(),
-                $partData->getPerformanceScore(),
-                $partData->getMarketPrice(),
-                $partData->getRsm(),
-                $partData->getPowerConsumptionW(),
-                $partData->getLengthM(),
-                $partData->getWidthM(),
-                $partData->getHeightM(),
-                $partData->getLifespan(),
-                $partData->getId()
+                $postData->getId(), // on null ID, mysql will use auto-increment.
+                $postData->getReplyToId(),
+                $postData->getSubject(),
+                $postData->getContent(),
+                $postData->getImagePath()
             ],
         );
 
         if (!$result) return false;
 
         // insert_id returns the last inserted ID.
-        if ($partData->getId() === null) {
-            $partData->setId($mysqli->insert_id);
-            $timeStamp = $partData->getTimeStamp() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
-            $partData->setTimeStamp($timeStamp);
+        if ($postData->getId() === null) {
+            $postData->setId($mysqli->insert_id);
+            $timeStamp = $postData->getTimeStamp() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
+            $postData->setTimeStamp($timeStamp);
         }
 
         return true;
     }
 
-    private function resultToComputerPart(array $data): Post
+    private function resultToPost(array $data): Post
     {
         return new Post(
-            name: $data['name'],
-            type: $data['type'],
-            brand: $data['brand'],
-            id: $data['id'],
-            modelNumber: $data['model_number'],
-            releaseDate: $data['release_date'],
-            description: $data['description'],
-            performanceScore: $data['performance_score'],
-            marketPrice: $data['market_price'],
-            rsm: $data['rsm'],
-            powerConsumptionW: $data['power_consumptionw'],
-            lengthM: $data['lengthm'],
-            widthM: $data['widthm'],
-            heightM: $data['heightm'],
-            lifespan: $data['lifespan'],
+            replyToId: $data["replyToId"],
+            subject: $data["subject"],
+            content: $data["content"],
+            imagePath: $data["imagePath"],
             timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
         );
     }
 
-    private function resultsToComputerParts(array $results): array
+    private function resultsToPosts(array $results): array
     {
-        $computerParts = [];
+        $Posts = [];
 
         foreach ($results as $result) {
-            $computerParts[] = $this->resultToComputerPart($result);
+            $computerParts[] = $this->resultToPost($result);
         }
 
-        return $computerParts;
+        return $Posts;
     }
 }
