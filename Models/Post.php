@@ -12,6 +12,7 @@ class Post implements Model
     // php 8のコンストラクタのプロパティプロモーションは、インスタンス変数を自動的に設定します。
     public function __construct(
         private string $content,
+        private ?string $url,
         private ?string $imagePath = null,
         private int $likes = 0,
         private ?int $id = null,
@@ -34,6 +35,16 @@ class Post implements Model
         return $this->replyToId;
     }
 
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
     public function setName(int $replyToId): void
     {
         $this->replyToId = $replyToId;
@@ -54,7 +65,7 @@ class Post implements Model
         return $this->likes;
     }
 
-    public function setLikes(int $count): void
+    public function setLikes(int $likes): void
     {
         $this->likes = $likes;
     }

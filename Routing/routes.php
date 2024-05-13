@@ -11,8 +11,11 @@ return [
         $method = $_SERVER['REQUEST_METHOD'];
         // GET method
         if ($method == "GET") {
-            // $time = $_SERVER['REMOTE_ADDR'];
-            return new HTMLRenderer('component/topPage', []);
+            $postDao = new PostDAOImpl();
+            $tempMaxThread = 200;
+            $results = $postDao->getAllThreads(0, $tempMaxThread);
+
+            return new HTMLRenderer('component/topPage', ["posts" => $results]);
         }
         // POST method
         else {
@@ -74,14 +77,33 @@ return [
                     $postDao = new PostDAOImpl();
                     $post = new Post($postText, $save_fullPath);
                     $postDao->create($post);
-                    return new JSONRenderer(["status" => "susuceess", "message" => "DBへ挿入が完了いたしました"]);
+                    return new JSONRenderer(["status" => "success", "message" => "DBへ挿入が完了いたしました"]);
                 }
             }
 
+            $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
+
             $postDao = new PostDAOImpl();
-            $post = new Post($postText);
+            $post = new Post($postText, $hashedURL);
             $postDao->create($post);
-            return new JSONRenderer(["status" => "susuceess", "message" => "DBへ挿入が完了いたしました"]);
+            return new JSONRenderer(["status" => "success", "message" => "DBへ挿入が完了いたしました"]);
+        }
+    },
+    'thread' => function (): HTMLRenderer  | JSONRenderer {
+        $method = $_SERVER['REQUEST_METHOD'];
+        // GET method
+        if ($method == "GET") {
+            $postDao = new PostDAOImpl();
+            $tempMaxThread = 200;
+            $results = $postDao->getAllThreads(0, $tempMaxThread);
+
+            return new HTMLRenderer('component/topPage', ["posts" => $results]);
+        }
+        // POST method
+        else {
+            echo "POSTが呼ばれました";
+
+            return new JSONRenderer([]);
         }
     },
 

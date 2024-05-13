@@ -51,7 +51,7 @@ class PostDAOImpl implements PostDAO
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM Post WHERE reply_to_id IS NULL LIMIT ?, ?";
+        $query = "SELECT * FROM Post WHERE reply_to_id IS NULL ORDER BY created_at  DESC LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
 
@@ -75,24 +75,26 @@ class PostDAOImpl implements PostDAO
 
         $query =
             <<<SQL
-            INSERT INTO Post (id, reply_to_id, content, ImagePath, likes)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Post (id, reply_to_id, content, ImagePath, url, likes)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE id = VALUES(id),
             reply_to_id = VALUES(reply_to_id),
             content = VALUES(content),
             ImagePath = VALUES(ImagePath),
+            url = VALUES(url),
             likes = VALUES(likes)
         SQL;
 
 
         $result = $mysqli->prepareAndExecute(
             $query,
-            'iisss',
+            'iissss',
             [
                 $postData->getId(), // on null ID, mysql will use auto-increment.
                 $postData->getReplyToId(),
                 $postData->getContent(),
                 $postData->getImagePath(),
+                $postData->getUrl(),
                 $postData->getLikes()
             ],
         );
@@ -112,10 +114,11 @@ class PostDAOImpl implements PostDAO
     private function resultToPost(array $data): Post
     {
         return new Post(
-            replyToId: $data["replyToId"],
             content: $data["content"],
-            imagePath: $data["imagePath"],
+            url: $data["url"],
+            imagePath: $data["ImagePath"],
             likes: $data["likes"],
+            replyToId: $data["reply_to_id"],
             timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
         );
     }
@@ -125,7 +128,7 @@ class PostDAOImpl implements PostDAO
         $Posts = [];
 
         foreach ($results as $result) {
-            $computerParts[] = $this->resultToPost($result);
+            $Posts[] = $this->resultToPost($result);
         }
 
         return $Posts;
