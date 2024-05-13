@@ -18,7 +18,7 @@ class PostDAOImpl implements PostDAO
     public function getById(int $id): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Imageboard WHERE id = ?", 'i', [$id])[0] ?? null;
+        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE id = ?", 'i', [$id])[0] ?? null;
 
         return $computerPart === null ? null : $this->resultsToPosts($computerPart);
     }
@@ -36,13 +36,13 @@ class PostDAOImpl implements PostDAO
     public function delete(int $id): bool
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        return $mysqli->prepareAndExecute("DELETE FROM Imageboard WHERE id = ?", 'i', [$id]);
+        return $mysqli->prepareAndExecute("DELETE FROM Post WHERE id = ?", 'i', [$id]);
     }
 
     public function getRandom(): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Imageboard ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
+        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
 
         return $computerPart === null ? null : $this->resultsToPosts($computerPart);
     }
@@ -51,7 +51,7 @@ class PostDAOImpl implements PostDAO
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM Imageboard WHERE reply_to_id IS NULL LIMIT ?, ?";
+        $query = "SELECT * FROM Post WHERE reply_to_id IS NULL LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
 
@@ -62,7 +62,7 @@ class PostDAOImpl implements PostDAO
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM Imageboard WHERE reply_to_id = ? LIMIT ?, ?";
+        $query = "SELECT * FROM Post WHERE reply_to_id = ? LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
 
@@ -75,24 +75,25 @@ class PostDAOImpl implements PostDAO
 
         $query =
             <<<SQL
-            INSERT INTO Imageboard (id, reply_to_id, subject, content, ImagePath,)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE id = ?,
+            INSERT INTO Post (id, reply_to_id, content, ImagePath, likes)
+            VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE id = VALUES(id),
             reply_to_id = VALUES(reply_to_id),
-            subject = VALUES(subject),
             content = VALUES(content),
             ImagePath = VALUES(ImagePath),
+            likes = VALUES(likes)
         SQL;
+
 
         $result = $mysqli->prepareAndExecute(
             $query,
-            'iissss',
+            'iisss',
             [
                 $postData->getId(), // on null ID, mysql will use auto-increment.
                 $postData->getReplyToId(),
-                $postData->getSubject(),
                 $postData->getContent(),
-                $postData->getImagePath()
+                $postData->getImagePath(),
+                $postData->getLikes()
             ],
         );
 
@@ -112,9 +113,9 @@ class PostDAOImpl implements PostDAO
     {
         return new Post(
             replyToId: $data["replyToId"],
-            subject: $data["subject"],
             content: $data["content"],
             imagePath: $data["imagePath"],
+            likes: $data["likes"],
             timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
         );
     }

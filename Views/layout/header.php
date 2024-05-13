@@ -15,12 +15,12 @@
         <ul class="flex flex-wrap justify-end -mb-px">
             <li id="uploadImage" value="on" class="me-2 border-b-2 border-sky-500 ">
                 <a href="/" class="inline-block p-4 rounded-t-lg text-sky-500" style="text-decoration:none;">
-                    Upload Image
+                    Home
                 </a>
             </li>
             <li id="imageList" value="off" class="me-2 border-b-2 hover:border-gray-400">
-                <a href="/publicImages" class="active inline-block p-4 rounded-t-lg text-gray-500 hover:text-black hover:border-gray-300" style="text-decoration:none;">
-                    Image List
+                <a href="/post" class="active inline-block p-4 rounded-t-lg text-gray-500 hover:text-black hover:border-gray-300" style="text-decoration:none;">
+                    create Post
                 </a>
             </li>
         </ul>
