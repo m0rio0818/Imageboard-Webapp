@@ -30,6 +30,7 @@ return [
         else {
             $jsonData = json_decode($_POST['data'], true);
             $postText = $jsonData["post"];
+            $postType = $jsonData["type"];
             $isImage = $jsonData["isImage"];
             $ip_address = $_SERVER['REMOTE_ADDR'];
 
@@ -84,26 +85,36 @@ return [
             $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
 
             $postDao = new PostDAOImpl();
-            $post = new Post($postText, $hashedURL);
+            if ($postType == "post") {
+                $post = new Post($postText, $hashedURL);
+            } else if ($postType == "reply") {
+                $post = new Post($postText, $hashedURL);
+            }
             $postDao->create($post);
             return new JSONRenderer(["status" => "success", "message" => "DBへ挿入が完了いたしました"]);
         }
     },
-    'thread' => function (): HTMLRenderer  | JSONRenderer {
+    'status' => function (): HTMLRenderer  | JSONRenderer {
         $method = $_SERVER['REQUEST_METHOD'];
         // GET method
         if ($method == "GET") {
+
+            $currentUrl = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+            $urlParts = explode("/", $currentUrl);
+
+            if (count($urlParts) < 3) {
+                return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
+            }
+
+            $publicPath = $urlParts[2];
             $postDao = new PostDAOImpl();
-            $tempMaxThread = 200;
-            $results = $postDao->getAllThreads(0, $tempMaxThread);
 
-            return new HTMLRenderer('component/topPage', ["posts" => $results]);
-        }
-        // POST method
-        else {
-            echo "POSTが呼ばれました";
+            $results = $postDao->getByURL($publicPath);
+            // return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
 
-            return new JSONRenderer([]);
+            // var_dump($results);
+
+            return new HTMLRenderer('component/status', ["post" => $results]);
         }
     },
 

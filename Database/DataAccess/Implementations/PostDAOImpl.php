@@ -18,9 +18,18 @@ class PostDAOImpl implements PostDAO
     public function getById(int $id): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE id = ?", 'i', [$id])[0] ?? null;
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE id = ?", 'i', [$id])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
+        return $post === null ? null : $this->resultsToPosts($post);
+    }
+
+
+    public function getByURL(string $url): ?Post
+    {
+        $mysqli = DatabaseManager::getMysqliConnection();
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE url = ?", 's', [$url])[0] ?? null;
+
+        return $post === null ? null : $this->resultToPost($post);
     }
 
     public function update(Post $postData): bool
@@ -42,9 +51,9 @@ class PostDAOImpl implements PostDAO
     public function getRandom(): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
+        return $post === null ? null : $this->resultsToPosts($post);
     }
 
     public function getAllThreads(int $offset, int $limit): array
@@ -118,6 +127,7 @@ class PostDAOImpl implements PostDAO
             url: $data["url"],
             imagePath: $data["ImagePath"],
             likes: $data["likes"],
+            id: $data["id"],
             replyToId: $data["reply_to_id"],
             timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
         );
@@ -125,9 +135,13 @@ class PostDAOImpl implements PostDAO
 
     private function resultsToPosts(array $results): array
     {
+
+        echo "resultss =>=>=>";
+        var_dump($results);
         $Posts = [];
 
         foreach ($results as $result) {
+
             $Posts[] = $this->resultToPost($result);
         }
 

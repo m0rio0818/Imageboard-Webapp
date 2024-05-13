@@ -1,16 +1,19 @@
-const postBtn = document.getElementById("post_btn");
+
+const replyComment = document.getElementById("replyComment");
 const fileInuput = document.getElementById("file_input");
+const send_reply = document.getElementById("reply_btn");
 
-
-postBtn.addEventListener("click", () => {
-    const postText = document.getElementById("message");
+send_reply.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("HELLO WORLD");
     const imageFile = fileInuput.files[0];
 
     const isImage = imageFile ? true : false;
 
     const jsonData = {
-        post: postText.value,
-        type : "post",
+        post: replyComment.value,
+        type: "reply",
+        replyId: "id",
         isImage: isImage,
     }
 
@@ -31,7 +34,8 @@ postBtn.addEventListener("click", () => {
         })
         .then(data => {
             if (data["status"] == "success") {
-                postText.value = "";
+                replyComment.value = "";
             }
         })
 })
+
