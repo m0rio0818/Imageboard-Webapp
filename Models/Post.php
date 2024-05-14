@@ -14,9 +14,9 @@ class Post implements Model
         private string $content,
         private ?string $url,
         private ?string $imagePath = null,
+        private ?int $replyToId = null,
         private int $likes = 0,
         private ?int $id = null,
-        private ?int $replyToId = null,
         private ?DataTimeStamp $timeStamp = null,
     ) {
     }

@@ -5,15 +5,17 @@ const send_reply = document.getElementById("reply_btn");
 
 send_reply.addEventListener("click", (e) => {
     e.preventDefault();
-    console.log("HELLO WORLD");
-    const imageFile = fileInuput.files[0];
 
+    const imageFile = fileInuput.files[0];
     const isImage = imageFile ? true : false;
+
+    const urlList = window.location.href.split("/");
+    const hashURL = urlList[urlList.indexOf("status") + 1];
 
     const jsonData = {
         post: replyComment.value,
         type: "reply",
-        replyId: "id",
+        url : hashURL,
         isImage: isImage,
     }
 

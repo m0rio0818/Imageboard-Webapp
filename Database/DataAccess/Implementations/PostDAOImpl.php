@@ -73,7 +73,7 @@ class PostDAOImpl implements PostDAO
 
         $query = "SELECT * FROM Post WHERE reply_to_id = ? LIMIT ?, ?";
 
-        $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
+        $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getReplyToId(), $offset, $limit]);
 
         return $results === null ? [] : $this->resultsToPosts($results);
     }
@@ -136,8 +136,6 @@ class PostDAOImpl implements PostDAO
     private function resultsToPosts(array $results): array
     {
 
-        echo "resultss =>=>=>";
-        var_dump($results);
         $Posts = [];
 
         foreach ($results as $result) {
