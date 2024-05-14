@@ -15,7 +15,7 @@ send_reply.addEventListener("click", (e) => {
     const jsonData = {
         post: replyComment.value,
         type: "reply",
-        url : hashURL,
+        url: hashURL,
         isImage: isImage,
     }
 
@@ -36,6 +36,7 @@ send_reply.addEventListener("click", (e) => {
         })
         .then(data => {
             if (data["status"] == "success") {
+                window.location.href = "/status/" + data["url"];
                 replyComment.value = "";
             }
         })

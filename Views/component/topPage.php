@@ -34,7 +34,7 @@
         </div>
     <?php endforeach ?>
 </div>
-<script src="/js/main.js"></script>
-<script src="/js/addComment.js"></script>
+<script src="/js/post.js"></script>
+<script src="/js/detailPage.js"></script>
 <style>
 </style>

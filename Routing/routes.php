@@ -82,15 +82,31 @@ return [
                 }
             }
 
+            // 画像がない場合
             $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
-
             $postDao = new PostDAOImpl();
             if ($postType == "post") {
                 $post = new Post($postText, $hashedURL);
+                $resultOfCreate = $postDao->create($post);
+                $url = $hashedURL;
+                if ($resultOfCreate) return new JSONRenderer(["status" => "success", "url" => $url, "post" => $post]);
             } else if ($postType == "reply") {
-                $post = new Post($postText, $hashedURL);
+                // urlから、返信元の投稿を特定
+                $url = $jsonData["url"];
+                $basePost = $postDao->getByURL($jsonData["url"]);
+                // 返信元のid
+                $reply_to_id = $basePost->getId();
+                // 返信のPOST
+                $replyPost = new Post($postText, $hashedURL, null, $reply_to_id);
+                // 返信をDBに追加
+                $resultOfCreate = $postDao->create($replyPost);
+                // 返信をDB追加成功
+                if ($resultOfCreate) {
+                    // リプライを更新。
+                    $replies = $postDao->getReplies($basePost, 0, 200);
+                    return new JSONRenderer(["status" => "success", "url" => $url,]);
+                }
             }
-            $postDao->create($post);
             return new JSONRenderer(["status" => "success", "message" => "DBへ挿入が完了いたしました"]);
         }
     },
@@ -98,23 +114,20 @@ return [
         $method = $_SERVER['REQUEST_METHOD'];
         // GET method
         if ($method == "GET") {
-
             $currentUrl = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
             $urlParts = explode("/", $currentUrl);
 
             if (count($urlParts) < 3) {
                 return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
             }
-
             $publicPath = $urlParts[2];
             $postDao = new PostDAOImpl();
+            $result = $postDao->getByURL($publicPath);
+            $replies = $postDao->getReplies($result, 0, 20);
 
-            $results = $postDao->getByURL($publicPath);
-            // return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
 
-            // var_dump($results);
-
-            return new HTMLRenderer('component/status', ["post" => $results]);
+            if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $result, "replies" => $replies]);
+            else  return new HTMLRenderer('component/status', ["post" => $result]);
         }
     },
 

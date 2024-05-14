@@ -63,6 +63,7 @@ class PostDAOImpl implements PostDAO
         $query = "SELECT * FROM Post WHERE reply_to_id IS NULL ORDER BY created_at  DESC LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
+        // var_dump($results);
 
         return $results === null ? [] : $this->resultsToPosts($results);
     }
@@ -73,7 +74,7 @@ class PostDAOImpl implements PostDAO
 
         $query = "SELECT * FROM Post WHERE reply_to_id = ? LIMIT ?, ?";
 
-        $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getReplyToId(), $offset, $limit]);
+        $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
 
         return $results === null ? [] : $this->resultsToPosts($results);
     }

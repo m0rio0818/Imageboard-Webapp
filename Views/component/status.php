@@ -34,8 +34,28 @@
             </div>
         </form>
     </div>
+    <?php if (isset($replies)) : ?>
+        <?php foreach ($replies as $reply) : ?>
+            <div class="w-2/3 rounded overflow-hidden border">
+                <article>
+                    <div class="px-6 py-4">
+                        <div class="text-xl mb-2"><?= htmlspecialchars($reply->getContent()); ?></div>
+                    </div>
+                    <div class="flex justify-center  px-6 pt-4 pb-2">
+                        <!-- <div class="flex items-center mx-10">
+                            <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2">
+                            </i>
+                            <p><?= htmlspecialchars($reply->getLikes()); ?></p>
+                        </div> -->
+                        <div class="flex items-center ml-20">
+                            <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
+                            </i>
+                            <p><?= htmlspecialchars($reply->getLikes()); ?></p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        <?php endforeach ?>
+    <?php endif ?>
 </div>
-<script>
-    const replyTOId = '<?= htmlspecialchars($post->getUrl()); ?>';
-</script>
 <script src="/js/reply.js"></script>

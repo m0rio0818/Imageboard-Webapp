@@ -10,7 +10,7 @@ postBtn.addEventListener("click", () => {
 
     const jsonData = {
         post: postText.value,
-        type : "post",
+        type: "post",
         isImage: isImage,
     }
 
@@ -31,6 +31,7 @@ postBtn.addEventListener("click", () => {
         })
         .then(data => {
             if (data["status"] == "success") {
+                window.location.href = "/";
                 postText.value = "";
             }
         })
