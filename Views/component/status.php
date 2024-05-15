@@ -1,7 +1,19 @@
+<?php
+
+use Carbon\Carbon;
+
+date_default_timezone_set('Asia/Tokyo'); ?>
+
 <div class="background pt-10 flex flex-col items-center justify-center h-full prose ">
     <div class="w-2/3 border rounded">
         <div class="w-full overflow-hidden border ">
             <article onclick="clickedURL(`<?= htmlspecialchars($post->getUrl()); ?>`)">
+                <div class="flex items-center p-5">
+                    <i class="fa-solid fa-user fa-2xl"></i>
+                    <p class="text-xs ml-3">
+                        Posted : <?= Carbon::parse($post->getTimeStamp()->getCreatedAt())->diffForHumans(); ?>
+                    </p>
+                </div>
                 <div class="px-6 py-4">
                     <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
@@ -38,10 +50,23 @@
         <?php foreach ($replies as $reply) : ?>
             <div class="w-2/3 rounded overflow-hidden border">
                 <article>
-                    <div class="px-6 py-4">
-                        <div class="text-xl mb-2"><?= htmlspecialchars($reply->getContent()); ?></div>
+                    <div class="w-full pt-3 pl-10">
+                        <div class="flex items-center">
+                            <i class="fa-regular fa-user fa-2xs mr-2"></i>
+                            <p class="text-xs">
+                                <?= Carbon::parse($reply->getTimeStamp()->getCreatedAt())->diffForHumans(); ?>
+                            </p>
+                        </div>
+                        <div class="py-1">
+                            <div class="text-md mb-2"><?= htmlspecialchars($reply->getContent()); ?></div>
+                        </div>
                     </div>
-                    <div class="flex justify-center  px-6 pt-4 pb-2">
+                    <div class="hover:bg-gray-300">
+                        <?php if (!is_null($reply->getImagePath())) : ?>
+                            <img class="mx-auto py-1" src="<?php echo substr($reply->getThumbnailPath(), 1) ?>" alt="">
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex justify-center px-6 pb-2">
                         <div class="flex items-center ml-20">
                             <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
                             </i>

@@ -30,9 +30,9 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                 <div class="pl-6 py-2">
                     <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
-                <div class="">
+                <div class="hover:bg-gray-300">
                     <?php if (!is_null($post->getImagePath())) : ?>
-                        <img src="<?php echo substr($post->getImagePath(), 1) ?>" alt="">
+                        <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
                     <?php endif; ?>
                 </div>
                 <div class="flex justify-center px-6 pt-2 pb-1">

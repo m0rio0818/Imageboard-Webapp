@@ -42,6 +42,8 @@ return [
             $isImage = $jsonData["isImage"];
             $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
             $post = new Post($postText, $hashedURL);
+            $postDao = new PostDAOImpl();
+            $createImage = false;
 
             // 画像があった場合。
             if ($isImage) {
@@ -82,44 +84,38 @@ return [
                 }
 
                 // サムネイル画像の作成
-                $newWidth = 300;
-                $newHeight = 200;
+                $newWidth = 640;
+                $newHeight = 480;
                 $command = "convert " . $save_ImageFullPath . " -resize " . $newWidth . "x" . $newHeight . " " . $save_thumbnailFullPath;
                 if (exec($command) === false) {
                     return new JSONRenderer(["status" => "failed", "message" => "failed to create thumbnail image"]);
                 }
 
                 //  DBにデータを入れ込む.
-                $postDao = new PostDAOImpl();
-                 
                 $post->setImagePath($save_ImageFullPath);
                 $post->setThumbnailPath($save_thumbnailFullPath);
 
-                $postDao->create($post);
-                return new JSONRenderer(["status" => "success", "message" => "画像のDB挿入完了"]);
-                return new JSONRenderer(["status" => false, "message" => "ファイルのアップロードに失敗しました. 再度アップロードお願いします"]);
+                // $resultOfCreate = $postDao->create($post);
+                $createImage = true;
             }
 
             // 画像がない場合
-            $postDao = new PostDAOImpl();
             if ($postType == "post") {
                 $resultOfCreate = $postDao->create($post);
                 if ($resultOfCreate) return new JSONRenderer(["status" => "success", "url" => $hashedURL, "post" => $post]);
             } else if ($postType == "reply") {
                 // urlから、返信元の投稿を特定
                 $url = $jsonData["url"];
-                $basePost = $postDao->getByURL($jsonData["url"]);
-                // 返信元のid
+                $basePost = $postDao->getByURL($url);
                 $reply_to_id = $basePost->getId();
                 // 返信のPOST
-                $post->getReplyToId($reply_to_id);
-                // $replyPost = new Post($postText, $hashedURL, null, $reply_to_id);
+                $post->setReplyToId($reply_to_id);
                 // 返信をDBに追加
                 $resultOfCreate = $postDao->create($post);
                 // 返信をDB追加成功
                 if ($resultOfCreate) {
                     // リプライを更新。
-                    $replies = $postDao->getReplies($basePost, 0, 200);
+                    $replies = $postDao->getReplies($basePost, 0, 100);
                     return new JSONRenderer(["status" => "success", "url" => $url]);
                 }
             }
@@ -145,7 +141,6 @@ return [
             $replies = $postDao->getReplies($thread, 0, 100);
 
             if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $thread,  "replyCount" => $replyCounts, "replies" => $replies]);
-            // else  return new HTMLRenderer('component/status', ["post" => $result]);
         }
     },
 
