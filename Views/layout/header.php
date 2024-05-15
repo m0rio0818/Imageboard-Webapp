@@ -10,7 +10,7 @@
     <link href="/css/style.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<header class="fixed top-0 z-10 h-16 w-full bg-white text-white">
+<!-- <header class="fixed top-0 z-10 h-16 w-full bg-white text-white">
     <div class="d-flex font-medium justify-end text-center">
         <ul class="flex flex-wrap justify-end -mb-px">
             <li id="uploadImage" value="on" class="me-2 border-b-2 border-sky-500 ">
@@ -25,7 +25,7 @@
             </li>
         </ul>
     </div>
-</header>
+</header> -->
 
 <body>
     <div class="mt-16 d-flex justify-center">

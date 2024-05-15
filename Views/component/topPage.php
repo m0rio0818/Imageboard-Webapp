@@ -1,3 +1,8 @@
+<?php
+
+use Carbon\Carbon;
+
+date_default_timezone_set('Asia/Tokyo'); ?>
 <div class="background pt-50 flex flex-col items-center justify-center h-full prose ">
     <div class="flex flex-col items-center border-gray-300 bg-gray-100 py-4 card w-full my-4 mx-auto px-5">
         <textarea id="message" rows="4" class="block p-2.5 w-3/4 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
@@ -14,12 +19,18 @@
     <div id="modal-area" class=""></div>
     <?php for ($i = 0; $i < count($posts); $i++) : ?>
         <?php $post = $posts[$i]; ?>
-        <div class="w-2/3 rounded overflow-hidden border hover:bg-gray-100 yubi">
-            <article onclick="clickedURL(`<?= htmlspecialchars($post->getUrl()); ?>`)">
-                <div class="px-6 py-4">
+        <div class="w-2/3 my-3 rounded overflow-hidden border ">
+            <article class="hover:border-gray-500 yubi" onclick="clickedURL(`<?= htmlspecialchars($post->getUrl()); ?>`)">
+                <div class="flex items-center p-5">
+                    <i class="fa-solid fa-user fa-2xl"></i>
+                    <p class="text-xs ml-3">
+                        Posted : <?= Carbon::parse($post->getTimeStamp()->getCreatedAt())->diffForHumans(); ?>
+                    </p>
+                </div>
+                <div class="pl-6 py-2">
                     <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
-                <div class="flex justify-center  px-6 pt-4 pb-2">
+                <div class="flex justify-center px-6 pt-2 pb-1">
                     <div class="flex items-center mx-10">
                         <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2"></i>
                         <p><?= htmlspecialchars($replyCounts[$i]); ?></p>
@@ -30,6 +41,17 @@
                     </div>
                 </div>
             </article>
+            <?php foreach ($replies[$i] as $reply) :  ?>
+                <div class="border w-full py-1 pl-10 bg-gray-100">
+                    <div class="flex items-center">
+                        <i class="fa-regular fa-user fa-2xs mr-2"></i>
+                        <p class="text-xs">
+                            <?= Carbon::parse($reply->getTimeStamp()->getCreatedAt())->diffForHumans(); ?>
+                        </p>
+                    </div>
+                    <?= htmlspecialchars($reply->getContent()) ?>
+                </div>
+            <?php endforeach ?>
         </div>
     <?php endfor; ?>
 </div>
