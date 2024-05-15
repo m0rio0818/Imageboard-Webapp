@@ -95,12 +95,13 @@ class PostDAOImpl implements PostDAO
 
         $query =
             <<<SQL
-            INSERT INTO Post (id, reply_to_id, content, ImagePath, url, likes)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO Post (id, reply_to_id, content, ImagePath, ThumbnailPath ,url, likes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE id = VALUES(id),
             reply_to_id = VALUES(reply_to_id),
             content = VALUES(content),
             ImagePath = VALUES(ImagePath),
+            ThumbnailPath = VALUES(ThumbnailPath),
             url = VALUES(url),
             likes = VALUES(likes)
         SQL;
@@ -108,12 +109,13 @@ class PostDAOImpl implements PostDAO
 
         $result = $mysqli->prepareAndExecute(
             $query,
-            'iissss',
+            'iisssss',
             [
                 $postData->getId(), // on null ID, mysql will use auto-increment.
                 $postData->getReplyToId(),
                 $postData->getContent(),
                 $postData->getImagePath(),
+                $postData->getThumbnailPath(),
                 $postData->getUrl(),
                 $postData->getLikes()
             ],
@@ -137,6 +139,7 @@ class PostDAOImpl implements PostDAO
             content: $data["content"],
             url: $data["url"],
             imagePath: $data["ImagePath"],
+            thumbnailPath: $data["ThumbnailPath"],
             likes: $data["likes"],
             id: $data["id"],
             replyToId: $data["reply_to_id"],

@@ -4,7 +4,7 @@ use Carbon\Carbon;
 
 date_default_timezone_set('Asia/Tokyo'); ?>
 <div class="background pt-50 flex flex-col items-center justify-center h-full prose ">
-    <div class="flex flex-col items-center border-gray-300 bg-gray-100 py-4 card w-full my-4 mx-auto px-5">
+    <div class="flex flex-col items-center border-gray-300  py-4 card w-full my-4 mx-auto px-5">
         <textarea id="message" rows="4" class="block p-2.5 w-3/4 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
         <div class="flex justify-between items-center w-3/4 py-2 relative">
             <div class="">
@@ -30,6 +30,11 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                 <div class="pl-6 py-2">
                     <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
+                <div class="">
+                    <?php if (!is_null($post->getImagePath())) : ?>
+                        <img src="<?php echo substr($post->getImagePath(), 1) ?>" alt="">
+                    <?php endif; ?>
+                </div>
                 <div class="flex justify-center px-6 pt-2 pb-1">
                     <div class="flex items-center mx-10">
                         <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2"></i>
@@ -41,8 +46,13 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </div>
                 </div>
             </article>
+            <?php if (count($replies[$i]) > 0) : ?>
+                <div class="w-full py-1 border-t border-b pl-5">
+                    <p>Comment</p>
+                </div>
+            <?php endif; ?>
             <?php foreach ($replies[$i] as $reply) :  ?>
-                <div class="border w-full py-1 pl-10 bg-gray-100">
+                <div class="border-b w-full py-1 pl-10">
                     <div class="flex items-center">
                         <i class="fa-regular fa-user fa-2xs mr-2"></i>
                         <p class="text-xs">
@@ -52,10 +62,15 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     <?= htmlspecialchars($reply->getContent()) ?>
                 </div>
             <?php endforeach ?>
+            <?php if (count($replies[$i]) >= 3) : ?>
+                <div class="w-full py-2 hover:bg-gray-100 yubi">
+                    <p class="text-center text-sky-400">全てのコメントを表示</p>
+                </div>
+            <?php endif; ?>
         </div>
     <?php endfor; ?>
 </div>
-<script src="/js/post.js"></script>
+<script src=" /js/post.js"></script>
 <script src="/js/detailPage.js"></script>
 <style>
 </style>

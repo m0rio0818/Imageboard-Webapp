@@ -14,6 +14,7 @@ class Post implements Model
         private string $content,
         private ?string $url,
         private ?string $imagePath = null,
+        private ?string $thumbnailPath = null,
         private ?int $replyToId = null,
         private int $likes = 0,
         private ?int $id = null,
@@ -78,6 +79,16 @@ class Post implements Model
     public function setImagePath(string $imagePath): void
     {
         $this->imagePath = $imagePath;
+    }
+
+    public function getThumbnailPath(): ?string
+    {
+        return $this->thumbnailPath;
+    }
+
+    public function setThumbnailPath(string $thumbnailPath): void
+    {
+        $this->thumbnailPath = $thumbnailPath;
     }
 
     public function getTimeStamp(): ?DataTimeStamp
