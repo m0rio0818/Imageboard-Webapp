@@ -11,8 +11,19 @@ return [
         $method = $_SERVER['REQUEST_METHOD'];
         // GET method
         if ($method == "GET") {
-            // $time = $_SERVER['REMOTE_ADDR'];
-            return new HTMLRenderer('component/topPage', []);
+            $postDao = new PostDAOImpl();
+            $tempMaxThread = 200;
+            $allThreads = $postDao->getAllThreads(0, $tempMaxThread);
+
+            $replyCounts = [];
+            $replies = [];
+
+            foreach ($allThreads as $thread) {
+                $replyCounts[] = $postDao->getReplyCount($thread);
+                $replies[] = $postDao->getReplies($thread, 0, 3);
+            }
+
+            return new HTMLRenderer('component/topPage', ["posts" => $allThreads, "replyCounts" => $replyCounts, "replies" => $replies]);
         }
         // POST method
         else {
@@ -27,8 +38,12 @@ return [
         else {
             $jsonData = json_decode($_POST['data'], true);
             $postText = $jsonData["post"];
+            $postType = $jsonData["type"];
             $isImage = $jsonData["isImage"];
-            $ip_address = $_SERVER['REMOTE_ADDR'];
+            $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
+            $post = new Post($postText, $hashedURL);
+            $postDao = new PostDAOImpl();
+            $createImage = false;
 
             // 画像があった場合。
             if ($isImage) {
@@ -39,7 +54,6 @@ return [
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $mimeType = finfo_file($finfo, $filePath);
                 finfo_close($finfo);
-                $createHashURL = hash('sha256', uniqid(mt_rand(), true));
 
                 if (!ValidationHelper::ImageTypeValidater($mimeType)) {
                     // ImageTypeが合致っていない
@@ -51,37 +65,82 @@ return [
                 $timeZone = new DateTimeZone('Asia/Tokyo');
                 $now = new DateTime();
                 $now->setTimezone($timeZone);
-
                 $year = $now->format("Y");
                 $month = $now->format("m");
                 $day = $now->format("d");
                 $root_dir = "./images";
                 $save_dirPath = $root_dir . "/" . $year . "/" . $month . "/" . $day;
-                $save_fullPath = $save_dirPath . "/" . $createHashURL . "." . $extension;
+                $save_ImageFullPath = $save_dirPath . "/" . $hashedURL . "." . $extension;
+                $save_thumbnailFullPath = $save_dirPath . "/" . $hashedURL  . "_thumbnail" . "." . $extension;
 
+                // ディレクトリ作成
                 if (!is_dir($save_dirPath)) {
                     mkdir($save_dirPath, 0777, true);
                 }
-                // URLのroot確認
-                $urlMediaType = ValidationHelper::ImageTypeValidater($mimeType);
-                $createdFullURL = $urlMediaType . "/" . $createHashURL;
 
-                $postDao = new PostDAOImpl();
-                $post = new Post($postText, $createdFullURL);
-                if (!move_uploaded_file($imageData["tmp_name"], $save_fullPath)) {
-                    return new JSONRenderer(["status" => false, "message" => "ファイルの作成に失敗しました. 再度作成お願いします"]);
-                } else {
-                    $postDao = new PostDAOImpl();
-                    $post = new Post($postText, $save_fullPath);
-                    $postDao->create($post);
-                    return new JSONRenderer(["status" => "susuceess", "message" => "DBへ挿入が完了いたしました"]);
+                // 画像アップロード
+                if (!move_uploaded_file($imageData["tmp_name"], $save_ImageFullPath)) {
+                    return new JSONRenderer(["status" => "failed", "message" => "ファイルのアップロードに失敗しました. 再度アップロードお願いします"]);
                 }
+
+                // サムネイル画像の作成
+                $newWidth = 640;
+                $newHeight = 480;
+                $command = "convert " . $save_ImageFullPath . " -resize " . $newWidth . "x" . $newHeight . " " . $save_thumbnailFullPath;
+                if (exec($command) === false) {
+                    return new JSONRenderer(["status" => "failed", "message" => "failed to create thumbnail image"]);
+                }
+
+                //  DBにデータを入れ込む.
+                $post->setImagePath($save_ImageFullPath);
+                $post->setThumbnailPath($save_thumbnailFullPath);
+
+                // $resultOfCreate = $postDao->create($post);
+                $createImage = true;
             }
 
+            // 画像がない場合
+            if ($postType == "post") {
+                $resultOfCreate = $postDao->create($post);
+                if ($resultOfCreate) return new JSONRenderer(["status" => "success", "url" => $hashedURL, "post" => $post]);
+            } else if ($postType == "reply") {
+                // urlから、返信元の投稿を特定
+                $url = $jsonData["url"];
+                $basePost = $postDao->getByURL($url);
+                $reply_to_id = $basePost->getId();
+                // 返信のPOST
+                $post->setReplyToId($reply_to_id);
+                // 返信をDBに追加
+                $resultOfCreate = $postDao->create($post);
+                // 返信をDB追加成功
+                if ($resultOfCreate) {
+                    // リプライを更新。
+                    $replies = $postDao->getReplies($basePost, 0, 100);
+                    return new JSONRenderer(["status" => "success", "url" => $url]);
+                }
+            }
+            return new JSONRenderer(["status" => "success", "message" => "DBへ挿入が完了いたしました"]);
+        }
+    },
+    'status' => function (): HTMLRenderer  | JSONRenderer {
+        $method = $_SERVER['REQUEST_METHOD'];
+        // GET method
+        if ($method == "GET") {
+            $currentUrl = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+            $urlParts = explode("/", $currentUrl);
+
+            if (count($urlParts) < 3) {
+                return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
+            }
+
+            $publicPath = $urlParts[2];
             $postDao = new PostDAOImpl();
-            $post = new Post($postText);
-            $postDao->create($post);
-            return new JSONRenderer(["status" => "susuceess", "message" => "DBへ挿入が完了いたしました"]);
+            $thread = $postDao->getByURL($publicPath);
+
+            $replyCounts = $postDao->getReplyCount($thread);
+            $replies = $postDao->getReplies($thread, 0, 100);
+
+            if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $thread,  "replyCount" => $replyCounts, "replies" => $replies]);
         }
     },
 

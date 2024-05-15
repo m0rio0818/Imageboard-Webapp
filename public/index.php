@@ -3,6 +3,9 @@ set_include_path(get_include_path() . PATH_SEPARATOR . realpath(__DIR__ . '/..')
 spl_autoload_extensions(".php");
 spl_autoload_register();
 
+require_once __DIR__  . '/../vendor/autoload.php';
+
+
 $DEBUG = true;
 
 if (preg_match('/\.(?:png|jpg|jpeg|gif|js|css|html)$/', $_SERVER["REQUEST_URI"])) {
@@ -16,8 +19,8 @@ $routes = include('Routing/routes.php');
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = ltrim($path, '/');
 $urlParts = explode("/", $path);
-// var_dump($urlParts);
-if ($urlParts[0] == "delete") {
+
+if ($urlParts[0] == "status") {
     $path = $urlParts[0];
 }
 

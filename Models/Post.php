@@ -12,10 +12,12 @@ class Post implements Model
     // php 8のコンストラクタのプロパティプロモーションは、インスタンス変数を自動的に設定します。
     public function __construct(
         private string $content,
+        private ?string $url,
         private ?string $imagePath = null,
+        private ?string $thumbnailPath = null,
+        private ?int $replyToId = null,
         private int $likes = 0,
         private ?int $id = null,
-        private ?int $replyToId = null,
         private ?DataTimeStamp $timeStamp = null,
     ) {
     }
@@ -29,9 +31,25 @@ class Post implements Model
     {
         $this->id = $id;
     }
+
+    public function setReplyToId(string $replyToId): void
+    {
+        $this->replyToId = $replyToId;
+    }
+
     public function getReplyToId(): string | null
     {
         return $this->replyToId;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
     }
 
     public function setName(int $replyToId): void
@@ -54,7 +72,7 @@ class Post implements Model
         return $this->likes;
     }
 
-    public function setLikes(int $count): void
+    public function setLikes(int $likes): void
     {
         $this->likes = $likes;
     }
@@ -67,6 +85,16 @@ class Post implements Model
     public function setImagePath(string $imagePath): void
     {
         $this->imagePath = $imagePath;
+    }
+
+    public function getThumbnailPath(): ?string
+    {
+        return $this->thumbnailPath;
+    }
+
+    public function setThumbnailPath(string $thumbnailPath): void
+    {
+        $this->thumbnailPath = $thumbnailPath;
     }
 
     public function getTimeStamp(): ?DataTimeStamp

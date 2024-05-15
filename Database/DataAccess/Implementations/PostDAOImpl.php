@@ -18,9 +18,18 @@ class PostDAOImpl implements PostDAO
     public function getById(int $id): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE id = ?", 'i', [$id])[0] ?? null;
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE id = ?", 'i', [$id])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
+        return $post === null ? null : $this->resultsToPosts($post);
+    }
+
+
+    public function getByURL(string $url): ?Post
+    {
+        $mysqli = DatabaseManager::getMysqliConnection();
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post WHERE url = ?", 's', [$url])[0] ?? null;
+
+        return $post === null ? null : $this->resultToPost($post);
     }
 
     public function update(Post $postData): bool
@@ -42,16 +51,16 @@ class PostDAOImpl implements PostDAO
     public function getRandom(): ?Post
     {
         $mysqli = DatabaseManager::getMysqliConnection();
-        $computerPart = $mysqli->prepareAndFetchAll("SELECT * FROM Post ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
+        $post = $mysqli->prepareAndFetchAll("SELECT * FROM Post ORDER BY RAND() LIMIT 1", '', [])[0] ?? null;
 
-        return $computerPart === null ? null : $this->resultsToPosts($computerPart);
+        return $post === null ? null : $this->resultsToPosts($post);
     }
 
     public function getAllThreads(int $offset, int $limit): array
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM Post WHERE reply_to_id IS NULL LIMIT ?, ?";
+        $query = "SELECT * FROM Post WHERE reply_to_id IS NULL ORDER BY created_at DESC LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
 
@@ -62,11 +71,22 @@ class PostDAOImpl implements PostDAO
     {
         $mysqli = DatabaseManager::getMysqliConnection();
 
-        $query = "SELECT * FROM Post WHERE reply_to_id = ? LIMIT ?, ?";
+        $query = "SELECT * FROM Post WHERE reply_to_id = ? ORDER BY created_at DESC  LIMIT ?, ?";
 
         $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
 
         return $results === null ? [] : $this->resultsToPosts($results);
+    }
+
+    public function getReplyCount(Post $postData): int
+    {
+        $mysqli = DatabaseManager::getMysqliConnection();
+
+        $query = "SELECT COUNT(*) FROM Post WHERE reply_to_id = ?";
+
+        $result = $mysqli->prepareAndFetchAll($query, 'i', [$postData->getId()]);
+
+        return $result[0]['COUNT(*)'];
     }
 
     public function createOrUpdate(Post $postData): bool
@@ -75,24 +95,28 @@ class PostDAOImpl implements PostDAO
 
         $query =
             <<<SQL
-            INSERT INTO Post (id, reply_to_id, content, ImagePath, likes)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Post (id, reply_to_id, content, ImagePath, ThumbnailPath ,url, likes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE id = VALUES(id),
             reply_to_id = VALUES(reply_to_id),
             content = VALUES(content),
             ImagePath = VALUES(ImagePath),
+            ThumbnailPath = VALUES(ThumbnailPath),
+            url = VALUES(url),
             likes = VALUES(likes)
         SQL;
 
 
         $result = $mysqli->prepareAndExecute(
             $query,
-            'iisss',
+            'iisssss',
             [
                 $postData->getId(), // on null ID, mysql will use auto-increment.
                 $postData->getReplyToId(),
                 $postData->getContent(),
                 $postData->getImagePath(),
+                $postData->getThumbnailPath(),
+                $postData->getUrl(),
                 $postData->getLikes()
             ],
         );
@@ -112,20 +136,25 @@ class PostDAOImpl implements PostDAO
     private function resultToPost(array $data): Post
     {
         return new Post(
-            replyToId: $data["replyToId"],
             content: $data["content"],
-            imagePath: $data["imagePath"],
+            url: $data["url"],
+            imagePath: $data["ImagePath"],
+            thumbnailPath: $data["ThumbnailPath"],
             likes: $data["likes"],
+            id: $data["id"],
+            replyToId: $data["reply_to_id"],
             timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
         );
     }
 
     private function resultsToPosts(array $results): array
     {
+
         $Posts = [];
 
         foreach ($results as $result) {
-            $computerParts[] = $this->resultToPost($result);
+
+            $Posts[] = $this->resultToPost($result);
         }
 
         return $Posts;
