@@ -13,9 +13,17 @@ return [
         if ($method == "GET") {
             $postDao = new PostDAOImpl();
             $tempMaxThread = 200;
-            $results = $postDao->getAllThreads(0, $tempMaxThread);
+            $allThreads = $postDao->getAllThreads(0, $tempMaxThread);
 
-            return new HTMLRenderer('component/topPage', ["posts" => $results]);
+            $replyCounts = [];
+            $replies = [];
+
+            foreach ($allThreads as $thread) {
+                $replyCounts[] = $postDao->getReplyCount($thread);
+                $replies[] = $postDao->getReplies($thread, 0, 3);
+            }
+
+            return new HTMLRenderer('component/topPage', ["posts" => $allThreads, "replyCounts" => $replyCounts, "replies" => $replies]);
         }
         // POST method
         else {
@@ -120,14 +128,16 @@ return [
             if (count($urlParts) < 3) {
                 return new HTMLRenderer('component/404', ["data" => "URL does not correct. need hashstring.<br> status/<strong>{ hashstring } </strong>"]);
             }
+
             $publicPath = $urlParts[2];
             $postDao = new PostDAOImpl();
-            $result = $postDao->getByURL($publicPath);
-            $replies = $postDao->getReplies($result, 0, 20);
+            $thread = $postDao->getByURL($publicPath);
 
+            $replyCounts = $postDao->getReplyCount($thread);
+            $replies = $postDao->getReplies($thread, 0, 100);
 
-            if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $result, "replies" => $replies]);
-            else  return new HTMLRenderer('component/status', ["post" => $result]);
+            if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $thread,  "replyCount" => $replyCounts, "replies" => $replies]);
+            // else  return new HTMLRenderer('component/status', ["post" => $result]);
         }
     },
 

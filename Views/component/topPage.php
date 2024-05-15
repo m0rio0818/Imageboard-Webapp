@@ -12,7 +12,8 @@
         </div>
     </div>
     <div id="modal-area" class=""></div>
-    <?php foreach ($posts as $post) : ?>
+    <?php for ($i = 0; $i < count($posts); $i++) : ?>
+        <?php $post = $posts[$i]; ?>
         <div class="w-2/3 rounded overflow-hidden border hover:bg-gray-100 yubi">
             <article onclick="clickedURL(`<?= htmlspecialchars($post->getUrl()); ?>`)">
                 <div class="px-6 py-4">
@@ -20,19 +21,17 @@
                 </div>
                 <div class="flex justify-center  px-6 pt-4 pb-2">
                     <div class="flex items-center mx-10">
-                        <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2">
-                        </i>
-                        <p><?= htmlspecialchars($post->getLikes()); ?></p>
+                        <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2"></i>
+                        <p><?= htmlspecialchars($replyCounts[$i]); ?></p>
                     </div>
                     <div class="flex items-center mx-10">
-                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
-                        </i>
+                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2"></i>
                         <p><?= htmlspecialchars($post->getLikes()); ?></p>
                     </div>
                 </div>
             </article>
         </div>
-    <?php endforeach ?>
+    <?php endfor; ?>
 </div>
 <script src="/js/post.js"></script>
 <script src="/js/detailPage.js"></script>

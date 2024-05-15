@@ -79,6 +79,17 @@ class PostDAOImpl implements PostDAO
         return $results === null ? [] : $this->resultsToPosts($results);
     }
 
+    public function getReplyCount(Post $postData): int
+    {
+        $mysqli = DatabaseManager::getMysqliConnection();
+
+        $query = "SELECT COUNT(*) FROM Post WHERE reply_to_id = ?";
+
+        $result = $mysqli->prepareAndFetchAll($query, 'i', [$postData->getId()]);
+
+        return $result[0]['COUNT(*)'];
+    }
+
     public function createOrUpdate(Post $postData): bool
     {
         $mysqli = DatabaseManager::getMysqliConnection();

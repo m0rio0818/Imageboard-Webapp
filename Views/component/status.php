@@ -9,7 +9,7 @@
                     <div class="flex items-center mx-10">
                         <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2">
                         </i>
-                        <p><?= htmlspecialchars($post->getLikes()); ?></p>
+                        <p><?= $replyCount; ?></p>
                     </div>
                     <div class="flex items-center mx-10">
                         <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
@@ -42,11 +42,6 @@
                         <div class="text-xl mb-2"><?= htmlspecialchars($reply->getContent()); ?></div>
                     </div>
                     <div class="flex justify-center  px-6 pt-4 pb-2">
-                        <!-- <div class="flex items-center mx-10">
-                            <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2">
-                            </i>
-                            <p><?= htmlspecialchars($reply->getLikes()); ?></p>
-                        </div> -->
                         <div class="flex items-center ml-20">
                             <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
                             </i>
