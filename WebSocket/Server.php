@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Server;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
@@ -22,6 +22,7 @@ class Server implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
+        echo "GET MESSAGE!" . $msg . " aaaa  =>";
         $this->broadcast($msg, $from);
     }
 
@@ -40,9 +41,7 @@ class Server implements MessageComponentInterface
     public function broadcast($msg, $from = null)
     {
         foreach ($this->clients as $client) {
-            if ($from === null || $from !== $client) {
-                $client->send($msg);
-            }
+            $client->send($msg);
         }
     }
 }
