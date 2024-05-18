@@ -8,7 +8,6 @@ send_reply.addEventListener("click", (e) => {
 
     const imageFile = fileInuput.files[0];
     const isImage = imageFile ? true : false;
-
     const urlList = window.location.href.split("/");
     const hashURL = urlList[urlList.indexOf("status") + 1];
 
@@ -37,8 +36,8 @@ send_reply.addEventListener("click", (e) => {
         .then(data => {
             console.log(data);
             if (data["status"] == "success") {
-                window.location.href = "/status/" + data["url"];
-                replyComment.value = "";
+                // window.location.href = "/status/" + data["url"];
+                // replyComment.value = "";
             }
         })
 })

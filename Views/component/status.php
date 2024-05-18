@@ -7,7 +7,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
 <div class="background pt-10 flex flex-col items-center justify-center h-full prose ">
     <div class="w-2/3 border rounded">
         <div class="w-full overflow-hidden border ">
-            <article onclick="clickedURL(`<?= htmlspecialchars($post->getUrl()); ?>`)">
+            <article>
                 <div class="flex items-center p-5">
                     <i class="fa-solid fa-user fa-2xl"></i>
                     <p class="text-xs ml-3">
@@ -48,7 +48,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
     </div>
     <?php if (isset($replies)) : ?>
         <?php foreach ($replies as $reply) : ?>
-            <div class="w-2/3 rounded overflow-hidden border">
+            <div id="replies" class="w-2/3 rounded overflow-hidden border">
                 <article>
                     <div class="w-full pt-3 pl-10">
                         <div class="flex items-center">
@@ -78,4 +78,5 @@ date_default_timezone_set('Asia/Tokyo'); ?>
         <?php endforeach ?>
     <?php endif ?>
 </div>
-<script src="/js/reply.js"></script>
+<!-- <script src="/js/reply.js"></script> -->
+<script src="/js/startWebsocket.js"></script>

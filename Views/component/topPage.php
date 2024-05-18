@@ -17,6 +17,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
         </div>
     </div>
     <div id="modal-area" class=""></div>
+    <div id="newMessageInfo"></div>
     <?php for ($i = 0; $i < count($posts); $i++) : ?>
         <?php $post = $posts[$i]; ?>
         <div class="w-2/3 my-3 rounded overflow-hidden border ">
