@@ -2,5 +2,10 @@
     "require": {
         "nesbot/carbon": "^3.3",
         "cboden/ratchet": "^0.4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Server\\": "WebSocket/"
+        }
     }
 }

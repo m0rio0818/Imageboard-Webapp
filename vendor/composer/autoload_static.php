@@ -28,6 +28,7 @@ class ComposerStaticInit889f831e09da48cb8affe8b66f071284
             'Symfony\\Component\\Routing\\' => 26,
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Clock\\' => 24,
+            'Server\\' => 7,
         ),
         'R' => 
         array (
@@ -93,6 +94,10 @@ class ComposerStaticInit889f831e09da48cb8affe8b66f071284
         array (
             0 => __DIR__ . '/..' . '/symfony/clock',
         ),
+        'Server\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/WebSocket',
+        ),
         'React\\Stream\\' => 
         array (
             0 => __DIR__ . '/..' . '/react/stream/src',
@@ -127,8 +132,8 @@ class ComposerStaticInit889f831e09da48cb8affe8b66f071284
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Clock\\' => 
         array (

@@ -43,7 +43,6 @@ return [
             $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
             $post = new Post($postText, $hashedURL);
             $postDao = new PostDAOImpl();
-            $createImage = false;
 
             // 画像があった場合。
             if ($isImage) {
@@ -94,9 +93,6 @@ return [
                 //  DBにデータを入れ込む.
                 $post->setImagePath($save_ImageFullPath);
                 $post->setThumbnailPath($save_thumbnailFullPath);
-
-                // $resultOfCreate = $postDao->create($post);
-                $createImage = true;
             }
 
             // 画像がない場合
