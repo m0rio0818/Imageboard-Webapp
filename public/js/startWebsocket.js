@@ -6,6 +6,7 @@ ws.onopen = function () {
 
 ws.onmessage = function (event) {
     const Message = JSON.parse(event.data);
+    // console.log("詳細ページ Message : ", Message);
     window.location.href = "/status/" + Message["url"];
 };
 
@@ -48,7 +49,7 @@ replyBtn.addEventListener("click", (e) => {
         .then(data => {
             console.log(data);
             if (data["status"] == "success") {
-                window.location.href = "/status/" + data["url"];
+                // window.location.href = "/status/" + data["url"];
                 replyComment.value = "";
             }
         })

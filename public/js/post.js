@@ -1,3 +1,17 @@
+const ws = new WebSocket("ws://localhost:8080");
+
+ws.onopen = function () {
+    console.log("Connected to WebSocket server");
+};
+
+
+ws.onmessage = function (event) {
+    const Message = JSON.parse(event.data);
+    window.location.href = "/";
+    console.log("POST ページ Message : ", Message);
+};
+
+
 const postBtn = document.getElementById("post_btn");
 const fileInuput = document.getElementById("file_input");
 
@@ -18,6 +32,8 @@ postBtn.addEventListener("click", () => {
     if (isImage) formData.append("image", imageFile)
     formData.append("data", JSON.stringify(jsonData));
 
+    ws.send(JSON.stringify((jsonData)));
+
     const requestPath = "/post";
     fetch(requestPath, {
         method: "POST",
@@ -32,8 +48,17 @@ postBtn.addEventListener("click", () => {
         .then(data => {
             console.log(data);
             if (data["status"] == "success") {
-                window.location.href = "/";
+                // window.location.href = "/";
                 postText.value = "";
             }
         })
 })
+
+
+ws.onclose = function (e) {
+    console.log("Connection closed.");
+};
+
+ws.onerror = function (e) {
+    console.error("WebSocket error observed:", e);
+};
