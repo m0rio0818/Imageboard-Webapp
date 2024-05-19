@@ -29,7 +29,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </p>
                 </div>
                 <div class="pl-6 py-2">
-                    <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                    <div class="text-xl break-words overflow-wrap mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
                 <div class="hover:bg-gray-300">
                     <?php if (!is_null($post->getImagePath())) : ?>

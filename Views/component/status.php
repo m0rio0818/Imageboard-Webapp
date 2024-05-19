@@ -4,7 +4,7 @@ use Carbon\Carbon;
 
 date_default_timezone_set('Asia/Tokyo'); ?>
 
-<div class="background pt-10 flex flex-col items-center justify-center h-full prose ">
+<div class="background pt-10 flex flex-col items-center justify-center h-full prose pb-5">
     <div class="w-2/3 border rounded">
         <div class="w-full overflow-hidden border ">
             <article>
@@ -15,7 +15,14 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </p>
                 </div>
                 <div class="px-6 py-4">
-                    <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                    <div class="text-xl break-words overflow-wrap mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                </div>
+                <div class="hover:bg-gray-300">
+                    <?php if (!is_null($post->getImagePath())) : ?>
+                        <a href="<?php echo substr($post->getImagePath(), 1) ?>">
+                            <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <div class="flex justify-center  px-6 pt-4 pb-2">
                     <div class="flex items-center mx-10">
