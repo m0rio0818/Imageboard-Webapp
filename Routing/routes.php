@@ -22,11 +22,7 @@ return [
                 $replyCounts[] = $postDao->getReplyCount($thread);
                 $replies[] = $postDao->getReplies($thread, 0, 3);
             }
-
             return new HTMLRenderer('component/topPage', ["posts" => $allThreads, "replyCounts" => $replyCounts, "replies" => $replies]);
-        }
-        // POST method
-        else {
         }
     },
     'post' => function (): HTMLRenderer  | JSONRenderer {
@@ -40,14 +36,19 @@ return [
             $postText = $jsonData["post"];
             $postType = $jsonData["type"];
             $isImage = $jsonData["isImage"];
-            $hashedURL =  hash('sha256', uniqid(mt_rand(), true));
+            $hashedURL = hash('sha256', uniqid(mt_rand(), true));
             $post = new Post($postText, $hashedURL);
             $postDao = new PostDAOImpl();
+
+            if (!ValidationHelper::checkPost($postText)["success"]) {
+                return new JSONRenderer(["status" => false, "message" => ValidationHelper::checkPost($postText)["message"]]);
+            }
 
             // 画像があった場合。
             if ($isImage) {
                 $imageData = $_FILES['image'];
                 $filePath = $imageData['tmp_name'];
+                $fileSize = $imageData["size"];
                 $extension = pathinfo($imageData["name"], PATHINFO_EXTENSION);
                 // MIMEタイプを取得
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -60,6 +61,11 @@ return [
                     か確認してください"]);
                 }
 
+                // ファイルサイズの確認
+                if (ValidationHelper::checkFileSize($fileSize)) {
+                    return new JSONRenderer(["status" => false, "message" => "ファイルは5MB以下のみ投稿可能です。"]);
+                }
+
                 // 画像保存フォルダ(日付ベースで作成 yyyy/mm/dd)がない際は作成。
                 $timeZone = new DateTimeZone('Asia/Tokyo');
                 $now = new DateTime();
@@ -70,7 +76,7 @@ return [
                 $root_dir = "./images";
                 $save_dirPath = $root_dir . "/" . $year . "/" . $month . "/" . $day;
                 $save_ImageFullPath = $save_dirPath . "/" . $hashedURL . "." . $extension;
-                $save_thumbnailFullPath = $save_dirPath . "/" . $hashedURL  . "_thumbnail" . "." . $extension;
+                $save_thumbnailFullPath = $save_dirPath . "/" . $hashedURL  . "_thumbnail." . $extension;
 
                 // ディレクトリ作成
                 if (!is_dir($save_dirPath)) {
@@ -82,10 +88,20 @@ return [
                     return new JSONRenderer(["status" => "failed", "message" => "ファイルのアップロードに失敗しました. 再度アップロードお願いします"]);
                 }
 
+
                 // サムネイル画像の作成
                 $newWidth = 640;
                 $newHeight = 480;
                 $command = "convert " . $save_ImageFullPath . " -resize " . $newWidth . "x" . $newHeight . " " . $save_thumbnailFullPath;
+
+                // if ($extension == "gif") {
+                //     $save_thumbnailFullPath = $save_dirPath . "/" . $hashedURL  . "_thumbnail.jpeg";
+                //     $command = "convert {$save_ImageFullPath}[0] -resize {$newWidth}x{$newHeight} {$save_thumbnailFullPath}";
+                // } else {
+                //     $save_thumbnailFullPath = $save_dirPath . "/" . $hashedURL  . "_thumbnail" . "." . $extension;
+                //     $command = "convert {$save_ImageFullPath} -resize {$newWidth}x{$newHeight} {$save_thumbnailFullPath}";
+                // }
+
                 if (exec($command) === false) {
                     return new JSONRenderer(["status" => "failed", "message" => "failed to create thumbnail image"]);
                 }
@@ -139,5 +155,35 @@ return [
             if ($replies !== null) return new HTMLRenderer('component/status', ["post" => $thread,  "replyCount" => $replyCounts, "replies" => $replies]);
         }
     },
+    'changeLike' => function (): JSONRenderer {
+        $method = $_SERVER['REQUEST_METHOD'];
 
+        if ($method == "POST") {
+            $requestBody = file_get_contents('php://input');
+            $jsonData = json_decode($requestBody, true);
+            $likeURL = $jsonData["likeUrl"];
+            $url = $jsonData["url"];
+            $type = $jsonData["type"];
+
+            $postDao = new PostDAOImpl();
+            $post = $postDao->getByURL($likeURL);
+            $likeCount = $post->getLikes();
+
+            // echo "before like count : " . $likeCount;
+            if ($type) {
+                // いいねUPにを更新する。
+                $likeCount += 1;
+            } else {
+                // いいねを-に更新する。
+                if ($likeCount - 1 < 0) return  new JSONRenderer(["status" => "false", "message" => "likeが-になり、問題がありませう"]);
+                $likeCount -= 1;
+            }
+            // echo "after like count : " . $likeCount;
+
+            $post->setLikes($likeCount);
+            $postDao->createOrUpdate($post);
+
+            return new JSONRenderer(["status" => "success", "url" => $url, "message" => "DBへ挿入が完了いたしました"]);
+        }
+    }
 ];

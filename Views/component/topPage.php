@@ -29,11 +29,13 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </p>
                 </div>
                 <div class="pl-6 py-2">
-                    <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                    <div class="text-xl break-words overflow-wrap mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
                 </div>
                 <div class="hover:bg-gray-300">
                     <?php if (!is_null($post->getImagePath())) : ?>
-                        <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        <a href="<?php echo substr($post->getImagePath(), 1) ?>">
+                            <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        </a>
                     <?php endif; ?>
                 </div>
                 <div class="flex justify-center px-6 pt-2 pb-1">
@@ -42,7 +44,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         <p><?= htmlspecialchars($replyCounts[$i]); ?></p>
                     </div>
                     <div class="flex items-center mx-10">
-                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2"></i>
+                        <i data-checked="false" class="like fa-heart fa-solid mx-2" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
                         <p><?= htmlspecialchars($post->getLikes()); ?></p>
                     </div>
                 </div>
@@ -73,5 +75,6 @@ date_default_timezone_set('Asia/Tokyo'); ?>
 </div>
 <script src=" /js/post.js"></script>
 <script src="/js/detailPage.js"></script>
+<!-- <script src="/js/likes.js"></script> -->
 <style>
 </style>

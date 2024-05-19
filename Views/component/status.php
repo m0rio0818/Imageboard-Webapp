@@ -4,7 +4,7 @@ use Carbon\Carbon;
 
 date_default_timezone_set('Asia/Tokyo'); ?>
 
-<div class="background pt-10 flex flex-col items-center justify-center h-full prose ">
+<div class="background pt-10 flex flex-col items-center justify-center h-full prose pb-5">
     <div class="w-2/3 border rounded">
         <div class="w-full overflow-hidden border ">
             <article>
@@ -15,7 +15,14 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </p>
                 </div>
                 <div class="px-6 py-4">
-                    <div class="text-xl mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                    <div class="text-xl break-words overflow-wrap mb-2"><?= htmlspecialchars($post->getContent()); ?></div>
+                </div>
+                <div class="hover:bg-gray-300">
+                    <?php if (!is_null($post->getImagePath())) : ?>
+                        <a href="<?php echo substr($post->getImagePath(), 1) ?>">
+                            <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <div class="flex justify-center  px-6 pt-4 pb-2">
                     <div class="flex items-center mx-10">
@@ -24,9 +31,8 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         <p><?= $replyCount; ?></p>
                     </div>
                     <div class="flex items-center mx-10">
-                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
-                        </i>
-                        <p><?= htmlspecialchars($post->getLikes()); ?></p>
+                        <i data-checked="false" class="like fa-heart fa-solid mx-2 yubi" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
+                        <p class="like-count"><?= htmlspecialchars($post->getLikes()); ?></p>
                     </div>
                 </div>
             </article>
@@ -68,7 +74,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </div>
                     <div class="flex justify-center px-6 pb-2">
                         <div class="flex items-center ml-20">
-                            <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
+                            <i data-checked="false" value="<?php htmlspecialchars($reply->getUrl()); ?>" class="like fa-heart text-pink-400 fa-solid mx-2">
                             </i>
                             <p><?= htmlspecialchars($reply->getLikes()); ?></p>
                         </div>
@@ -80,3 +86,4 @@ date_default_timezone_set('Asia/Tokyo'); ?>
 </div>
 <!-- <script src="/js/reply.js"></script> -->
 <script src="/js/startWebsocket.js"></script>
+<!-- <script src="/js/likeDetail.js"></script> -->

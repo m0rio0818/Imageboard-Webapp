@@ -40,4 +40,17 @@ class ValidationHelper
         $fileSizeMB = $fileSize / (1024 * 1024);
         return $fileSizeMB >= 5;
     }
+
+    public static function checkPost(string $postText): array
+    {
+        if ((bool)preg_match('/^\s*$/', $postText)) {
+            return ['success' => false, 'message' => '無効なテキスト: コンテンツが空白の投稿はできません。'];
+        }
+
+        if (strlen($postText) >= 1000) {
+            return ['success' => false, 'message' => 'POSTの文字数は1000字以内になります。'];
+        }
+
+        return ["success" => true];
+    }
 }
