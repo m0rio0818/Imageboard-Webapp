@@ -33,7 +33,9 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                 </div>
                 <div class="hover:bg-gray-300">
                     <?php if (!is_null($post->getImagePath())) : ?>
-                        <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        <a href="<?php echo substr($post->getImagePath(), 1) ?>">
+                            <img class="mx-auto py-1" src="<?php echo substr($post->getThumbnailPath(), 1) ?>" alt="">
+                        </a>
                     <?php endif; ?>
                 </div>
                 <div class="flex justify-center px-6 pt-2 pb-1">
