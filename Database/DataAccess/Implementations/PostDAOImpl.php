@@ -89,6 +89,7 @@ class PostDAOImpl implements PostDAO
         return $result[0]['COUNT(*)'];
     }
 
+
     public function createOrUpdate(Post $postData): bool
     {
         $mysqli = DatabaseManager::getMysqliConnection();

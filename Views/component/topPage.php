@@ -44,7 +44,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         <p><?= htmlspecialchars($replyCounts[$i]); ?></p>
                     </div>
                     <div class="flex items-center mx-10">
-                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2"></i>
+                        <i data-checked="false" class="like fa-heart fa-solid mx-2" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
                         <p><?= htmlspecialchars($post->getLikes()); ?></p>
                     </div>
                 </div>
@@ -75,5 +75,6 @@ date_default_timezone_set('Asia/Tokyo'); ?>
 </div>
 <script src=" /js/post.js"></script>
 <script src="/js/detailPage.js"></script>
+<!-- <script src="/js/likes.js"></script> -->
 <style>
 </style>

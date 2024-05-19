@@ -31,9 +31,8 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         <p><?= $replyCount; ?></p>
                     </div>
                     <div class="flex items-center mx-10">
-                        <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
-                        </i>
-                        <p><?= htmlspecialchars($post->getLikes()); ?></p>
+                        <i data-checked="false" class="like fa-heart fa-solid mx-2 yubi" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
+                        <p class="like-count"><?= htmlspecialchars($post->getLikes()); ?></p>
                     </div>
                 </div>
             </article>
@@ -75,7 +74,7 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                     </div>
                     <div class="flex justify-center px-6 pb-2">
                         <div class="flex items-center ml-20">
-                            <i id="like" class="fa-heart hover:text-pink-400 fa-solid mx-2">
+                            <i data-checked="false" value="<?php htmlspecialchars($reply->getUrl()); ?>" class="like fa-heart text-pink-400 fa-solid mx-2">
                             </i>
                             <p><?= htmlspecialchars($reply->getLikes()); ?></p>
                         </div>
@@ -87,3 +86,4 @@ date_default_timezone_set('Asia/Tokyo'); ?>
 </div>
 <!-- <script src="/js/reply.js"></script> -->
 <script src="/js/startWebsocket.js"></script>
+<!-- <script src="/js/likeDetail.js"></script> -->

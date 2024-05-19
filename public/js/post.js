@@ -4,7 +4,6 @@ ws.onopen = function () {
     console.log("Connected to WebSocket server");
 };
 
-
 ws.onmessage = function (event) {
     const Message = JSON.parse(event.data);
     window.location.href = "/";
@@ -32,7 +31,6 @@ postBtn.addEventListener("click", () => {
     if (isImage) formData.append("image", imageFile)
     formData.append("data", JSON.stringify(jsonData));
 
-    ws.send(JSON.stringify((jsonData)));
 
     const requestPath = "/post";
     fetch(requestPath, {
@@ -46,10 +44,12 @@ postBtn.addEventListener("click", () => {
             return response.json();
         })
         .then(data => {
-            console.log(data);
+            console.log("DDD", data);
             if (data["status"] == "success") {
-                // window.location.href = "/";
+                ws.send(JSON.stringify((jsonData)));
                 postText.value = "";
+            } else {
+                window.alert(data.message);
             }
         })
 })
