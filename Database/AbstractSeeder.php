@@ -16,9 +16,12 @@ abstract class AbstractSeeder implements Seeder
     // キーはタイプの文字列で、値はbind_paramの文字列です。
     const AVAILABLE_TYPES = [
         'int' => 'i',
+        '?int' => 'i',
         // PHPのfloatは実際にはdouble型の精度です。
         'float' => 'd',
         'string' => 's',
+        '?string' => 's',
+        'DateTime' => 's',
     ];
 
     public function __construct(MySQLWrapper $conn)
@@ -81,6 +84,12 @@ abstract class AbstractSeeder implements Seeder
         $dataTypes = implode(array_map(function ($columnInfo) {
             return static::AVAILABLE_TYPES[$columnInfo['data_type']];
         }, $this->tableColumns));
+
+        foreach ($row as $i => $value) {
+            if (get_debug_type($value) === 'DateTime') {
+                $row[$i] = $value->format('Y-m-d H:i:s');
+            }
+        }
 
         // bind paramsは文字の配列（文字列）を取り、それぞれに値を挿入します。
         // 例：$stmt->bind_param('iss', ...array_values([1, 'John', 'john@example.com'])) は、ステートメントに整数、文字列、文字列を挿入します。
