@@ -30,10 +30,10 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         </i>
                         <p><?= $replyCount; ?></p>
                     </div>
-                    <div class="flex items-center mx-10">
+                    <!-- <div class="flex items-center mx-10">
                         <i data-checked="false" class="like fa-heart fa-solid mx-2 yubi" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
                         <p class="like-count"><?= htmlspecialchars($post->getLikes()); ?></p>
-                    </div>
+                    </div> -->
                 </div>
             </article>
         </div>
@@ -72,13 +72,13 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                             <img class="mx-auto py-1" src="<?php echo substr($reply->getThumbnailPath(), 1) ?>" alt="">
                         <?php endif; ?>
                     </div>
-                    <div class="flex justify-center px-6 pb-2">
+                    <!-- <div class="flex justify-center px-6 pb-2">
                         <div class="flex items-center ml-20">
                             <i data-checked="false" value="<?php htmlspecialchars($reply->getUrl()); ?>" class="like fa-heart text-pink-400 fa-solid mx-2">
                             </i>
                             <p><?= htmlspecialchars($reply->getLikes()); ?></p>
                         </div>
-                    </div>
+                    </div> -->
                 </article>
             </div>
         <?php endforeach ?>

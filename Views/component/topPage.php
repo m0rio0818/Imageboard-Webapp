@@ -43,10 +43,10 @@ date_default_timezone_set('Asia/Tokyo'); ?>
                         <i id="comment" class="fa-comment hover:text-blue-400 fa-solid mx-2"></i>
                         <p><?= htmlspecialchars($replyCounts[$i]); ?></p>
                     </div>
-                    <div class="flex items-center mx-10">
+                    <!-- <div class="flex items-center mx-10">
                         <i data-checked="false" class="like fa-heart fa-solid mx-2" data-url="<?= htmlspecialchars($post->getUrl()); ?>"></i>
                         <p><?= htmlspecialchars($post->getLikes()); ?></p>
-                    </div>
+                    </div> -->
                 </div>
             </article>
             <?php if (count($replies[$i]) > 0) : ?>

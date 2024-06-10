@@ -52,8 +52,7 @@ class PostsSeeder extends AbstractSeeder
         for ($i = 0; $i < 100; $i++) {
             $Post_Thumbnail = "./images/2024/05/20/5e750e6d8715166571c7cd1fef5c0645a37f86b250e3583dfde8887258c83257_thumbnail.jpg";
             $Post_Image = "./images/2024/05/20/5e750e6d8715166571c7cd1fef5c0645a37f86b250e3583dfde8887258c83257.jpg";
-            $randomDateTimeString = $faker->dateTimeBetween($startDate, $endDate)->format("Y-m-d H:i:s");
-            
+             
             $row = [
                 $faker->realText(200, 2),
                 $Post_Image,

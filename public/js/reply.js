@@ -36,8 +36,8 @@ send_reply.addEventListener("click", (e) => {
         .then(data => {
             console.log(data);
             if (data["status"] == "success") {
-                // window.location.href = "/status/" + data["url"];
-                // replyComment.value = "";
+                window.location.href = "/status/" + data["url"];
+                replyComment.value = "";
             }
         })
 })
