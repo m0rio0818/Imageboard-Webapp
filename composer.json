@@ -6,6 +6,7 @@
     },
     "autoload": {
         "psr-4": {
+            "Database\\DataAccess\\Implementations\\": "Database/DataAccess/Implementations/",
             "Server\\": "WebSocket/"
         }
     }

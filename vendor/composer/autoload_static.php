@@ -59,6 +59,10 @@ class ComposerStaticInit889f831e09da48cb8affe8b66f071284
         array (
             'Evenement\\' => 10,
         ),
+        'D' => 
+        array (
+            'Database\\DataAccess\\Implementations\\' => 36,
+        ),
         'C' => 
         array (
             'Carbon\\Doctrine\\' => 16,
@@ -159,6 +163,10 @@ class ComposerStaticInit889f831e09da48cb8affe8b66f071284
         'Evenement\\' => 
         array (
             0 => __DIR__ . '/..' . '/evenement/evenement/src',
+        ),
+        'Database\\DataAccess\\Implementations\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/Database/DataAccess/Implementations',
         ),
         'Carbon\\Doctrine\\' => 
         array (

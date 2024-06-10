@@ -29,6 +29,7 @@ return array(
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'Faker\\' => array($vendorDir . '/fakerphp/faker/src/Faker'),
     'Evenement\\' => array($vendorDir . '/evenement/evenement/src'),
+    'Database\\DataAccess\\Implementations\\' => array($baseDir . '/Database/DataAccess/Implementations'),
     'Carbon\\Doctrine\\' => array($vendorDir . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine'),
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
 );
